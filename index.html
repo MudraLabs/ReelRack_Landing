@@ -4,91 +4,139 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReelRack — Turn workout reels into real routines</title>
-<meta name="description" content="Paste any Instagram, TikTok, or YouTube workout reel and ReelRack's AI turns it into a clean, followable routine — with a built-in timer, planner, and streaks.">
+<meta name="description" content="Share any Instagram, TikTok, or YouTube workout reel and ReelRack's AI watches the video and builds you a clean, followable routine — timer, planner, and streaks included.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Hanken+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --accent:#FF5A2C; --accent2:#FF7A45; --ink:#0B0B0C;
-    --bg:#0C0C0E; --surface:#1A1A1C; --surface2:#27272B;
-    --tx:#F5F3F0; --dim:rgba(255,255,255,.62); --faint:rgba(255,255,255,.38);
+    --bg:#0C0C0E; --surface:#141416; --surface2:#1C1C1F;
+    --tx:#F5F3F0; --dim:rgba(255,255,255,.6); --faint:rgba(255,255,255,.35);
     --line:rgba(255,255,255,.07);
   }
   * { box-sizing:border-box; margin:0; padding:0; }
   html { scroll-behavior:smooth; }
-  body { background:var(--bg); color:var(--tx); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  body { background:var(--bg); color:var(--tx); font-family:'Hanken Grotesk',-apple-system,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  h1,h2,h3,.ar { font-family:'Archivo',sans-serif; letter-spacing:-.02em; }
   a { color:inherit; }
-  .wrap { max-width:1080px; margin:0 auto; padding:0 24px; }
+  .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
 
-  /* Nav */
+  /* reveal-on-scroll */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity:1; transform:none; }
+  .d1 { transition-delay:.08s } .d2 { transition-delay:.16s } .d3 { transition-delay:.24s }
+
+  /* nav */
   nav { display:flex; align-items:center; justify-content:space-between; padding:22px 0; }
-  .lockup { display:flex; align-items:center; gap:10px; font-size:20px; font-weight:800; letter-spacing:-.5px; text-decoration:none; }
-  .nav-cta { background:var(--surface); border:1px solid var(--line); color:var(--tx); font-weight:700; font-size:14px; padding:10px 20px; border-radius:999px; text-decoration:none; }
-  .nav-cta:hover { background:var(--surface2); }
+  .lockup { display:flex; align-items:center; gap:10px; font-family:'Archivo'; font-size:20px; font-weight:800; text-decoration:none; }
+  .nav-cta { font-family:'Archivo'; background:var(--tx); color:var(--ink); font-weight:700; font-size:14px; padding:11px 22px; border-radius:999px; text-decoration:none; transition:transform .15s; }
+  .nav-cta:hover { transform:scale(1.04); }
 
-  /* Hero */
-  .hero { display:grid; grid-template-columns:1.15fr .85fr; gap:48px; align-items:center; padding:64px 0 88px; }
-  .chip { display:inline-flex; align-items:center; gap:7px; color:var(--accent); background:rgba(255,90,44,.13); font-size:13px; font-weight:700; padding:7px 14px; border-radius:999px; margin-bottom:20px; }
-  h1 { font-size:clamp(40px,6vw,62px); font-weight:800; letter-spacing:-2.4px; line-height:1.02; }
+  /* hero */
+  .hero { display:grid; grid-template-columns:1.05fr .95fr; gap:24px; align-items:center; padding:56px 0 40px; position:relative; }
+  .hero::before { content:""; position:absolute; right:-180px; top:-60px; width:560px; height:560px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,90,44,.16), transparent 65%); pointer-events:none; }
+  .eyebrow { display:inline-flex; align-items:center; gap:10px; color:var(--accent); font-size:13px; font-weight:700; letter-spacing:.04em; margin-bottom:22px; }
+  .bars { display:flex; align-items:flex-end; gap:3px; height:16px; }
+  .bars i { width:3.5px; background:var(--accent); border-radius:2px; animation:eq 1s ease-in-out infinite; }
+  .bars i:nth-child(1){ height:60%; animation-delay:0s } .bars i:nth-child(2){ height:100%; animation-delay:.15s }
+  .bars i:nth-child(3){ height:75%; animation-delay:.3s } .bars i:nth-child(4){ height:45%; animation-delay:.45s }
+  @keyframes eq { 0%,100%{ transform:scaleY(.45) } 50%{ transform:scaleY(1) } }
+  h1 { font-size:clamp(44px,6.6vw,72px); font-weight:900; letter-spacing:-.045em; line-height:.98; }
   h1 em { font-style:normal; color:var(--accent); }
-  .sub { color:var(--dim); font-size:18px; line-height:1.55; max-width:460px; margin:20px 0 32px; }
-  .cta { display:inline-block; background:linear-gradient(120deg,var(--accent2),var(--accent)); color:var(--ink); font-weight:800; font-size:17px; padding:16px 32px; border-radius:999px; text-decoration:none; box-shadow:0 10px 36px rgba(255,90,44,.35); }
-  .cta:hover { filter:brightness(1.05); }
-  .platforms { display:flex; gap:14px; color:var(--faint); font-size:13.5px; font-weight:600; margin-top:18px; }
+  .sub { color:var(--dim); font-size:18px; line-height:1.55; max-width:430px; margin:24px 0 34px; }
+  .cta { font-family:'Archivo'; display:inline-flex; align-items:center; gap:10px; background:linear-gradient(120deg,var(--accent2),var(--accent)); color:var(--ink); font-weight:800; font-size:16.5px; padding:17px 30px; border-radius:999px; text-decoration:none; box-shadow:0 14px 44px rgba(255,90,44,.32); transition:transform .15s; }
+  .cta:hover { transform:translateY(-2px); }
+  .cta svg { flex-shrink:0 }
 
-  /* Phone mockup */
-  .phone { width:280px; margin:0 auto; background:#000; border-radius:44px; padding:12px; box-shadow:0 0 0 8px #1B1B1E, 0 40px 90px rgba(0,0,0,.6); }
-  .screen { background:radial-gradient(120% 80% at 50% 0%, #2A1E18, #0D0D10 65%); border-radius:34px; padding:46px 18px 22px; min-height:520px; }
-  .mock-reel { background:repeating-linear-gradient(135deg,#161618 0 12px,#1C1C1F 12px 24px); border-radius:18px; height:130px; position:relative; margin-bottom:14px; }
-  .mock-play { position:absolute; right:12px; bottom:12px; width:36px; height:36px; border-radius:999px; background:var(--accent); display:flex; align-items:center; justify-content:center; }
-  .mock-play::after { content:""; border-left:11px solid var(--ink); border-top:7px solid transparent; border-bottom:7px solid transparent; margin-left:3px; }
-  .mock-arrow { text-align:center; color:var(--accent); font-size:22px; margin:4px 0 10px; }
-  .mock-row { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 14px; margin-bottom:9px; display:flex; align-items:center; gap:11px; }
-  .mock-num { width:26px; height:26px; border-radius:999px; background:var(--accent); color:var(--ink); font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-  .mock-name { font-weight:700; font-size:13.5px; }
-  .mock-meta { color:var(--faint); font-size:11px; margin-top:1px; }
+  /* phone */
+  .phone { width:min(300px,72vw); border-radius:46px; background:#000; padding:11px; box-shadow:0 0 0 8px #19191C, 0 50px 110px rgba(0,0,0,.7); position:relative; }
+  .phone img { width:100%; display:block; border-radius:36px; }
+  .hero .phone { margin:0 0 0 auto; animation:float 7s ease-in-out infinite; }
+  @keyframes float { 0%,100%{ transform:translateY(0) rotate(.6deg) } 50%{ transform:translateY(-14px) rotate(-.6deg) } }
 
-  /* Sections */
-  section { padding:72px 0; border-top:1px solid var(--line); }
-  .label { color:var(--accent); font-size:13px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; margin-bottom:14px; }
-  h2 { font-size:clamp(30px,4.4vw,42px); font-weight:800; letter-spacing:-1.4px; line-height:1.08; max-width:560px; }
+  /* marquee */
+  .marquee { border-block:1px solid var(--line); padding:18px 0; overflow:hidden; margin-top:48px; }
+  .track { display:flex; gap:48px; width:max-content; animation:scroll 26s linear infinite; }
+  .track span { font-family:'Archivo'; font-weight:800; font-size:14px; letter-spacing:.22em; color:var(--faint); white-space:nowrap; }
+  .track span em { font-style:normal; color:var(--accent); margin-right:48px; }
+  @keyframes scroll { to { transform:translateX(-50%); } }
 
-  .features { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:44px; }
-  .feature { background:var(--surface); border:1px solid var(--line); border-radius:22px; padding:26px 22px; }
-  .f-icon { width:46px; height:46px; border-radius:14px; background:rgba(255,90,44,.13); display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:16px; }
-  .feature h3 { font-size:17px; font-weight:800; letter-spacing:-.3px; margin-bottom:7px; }
-  .feature p { color:var(--dim); font-size:14.5px; line-height:1.55; }
+  /* sections */
+  section { padding:96px 0 0; }
+  .label { color:var(--accent); font-family:'Archivo'; font-size:12.5px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; margin-bottom:16px; }
+  h2 { font-size:clamp(32px,4.6vw,48px); font-weight:800; letter-spacing:-.035em; line-height:1.04; max-width:600px; }
 
-  .steps { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:44px; counter-reset:step; }
-  .step { background:var(--surface); border:1px solid var(--line); border-radius:22px; padding:28px 24px; }
-  .step::before { counter-increment:step; content:counter(step); display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:999px; background:var(--accent); color:var(--ink); font-weight:800; margin-bottom:16px; }
-  .step h3 { font-size:17px; font-weight:800; margin-bottom:7px; }
-  .step p { color:var(--dim); font-size:14.5px; line-height:1.55; }
+  /* steps: three phones */
+  .stepgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; margin-top:56px; align-items:end; }
+  .stepcell { text-align:center; }
+  .stepcell .phone { margin:0 auto 26px; width:min(250px,80vw); }
+  .stepcell:nth-child(2) .phone { transform:translateY(-22px); }
+  .stepnum { font-family:'Archivo'; color:var(--accent); font-weight:800; font-size:13px; letter-spacing:.14em; }
+  .stepcell h3 { font-size:20px; font-weight:800; margin:8px 0 8px; }
+  .stepcell p { color:var(--dim); font-size:15px; line-height:1.55; max-width:280px; margin:0 auto; }
 
-  /* FAQ */
-  .faq { max-width:680px; margin-top:36px; }
-  details { border-bottom:1px solid var(--line); padding:20px 0; }
-  summary { font-size:17px; font-weight:700; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; }
-  summary::after { content:"+"; color:var(--accent); font-size:22px; font-weight:600; }
-  details[open] summary::after { content:"–"; }
-  details p { color:var(--dim); font-size:15px; line-height:1.6; margin-top:12px; max-width:600px; }
+  /* bento */
+  .bento { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-top:52px; }
+  .cell { background:var(--surface); border:1px solid var(--line); border-radius:26px; padding:30px; overflow:hidden; position:relative; }
+  .cell h3 { font-size:21px; font-weight:800; margin-bottom:8px; }
+  .cell p { color:var(--dim); font-size:15px; line-height:1.55; max-width:380px; }
+  .mini { margin-top:26px; }
+  /* import mini: stage list */
+  .stage { display:flex; align-items:center; gap:12px; padding:9px 0; color:var(--dim); font-size:14.5px; font-weight:600; }
+  .tick { width:22px; height:22px; border-radius:999px; background:var(--accent); color:var(--ink); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; flex-shrink:0; }
+  .tick.live { background:transparent; border:2px solid var(--accent); position:relative; }
+  .tick.live::after { content:""; width:8px; height:8px; border-radius:99px; background:var(--accent); animation:pulse 1.1s infinite; }
+  @keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:.35 } }
+  /* runner mini: timer ring */
+  .ringwrap { display:flex; align-items:center; gap:22px; }
+  .ring { width:108px; height:108px; border-radius:50%; flex-shrink:0;
+    background:conic-gradient(var(--accent) 0deg, var(--accent) 250deg, var(--surface2) 250deg);
+    display:flex; align-items:center; justify-content:center; animation:spin 6s linear infinite; }
+  .ring b { font-family:'Archivo'; width:84px; height:84px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; color:#4CD97B; animation:spin 6s linear infinite reverse; }
+  @keyframes spin { to { transform:rotate(360deg) } }
+  .ringtxt b { font-family:'Archivo'; display:block; font-size:17px; margin-bottom:3px; }
+  .ringtxt span { color:var(--faint); font-size:13.5px; }
+  /* planner mini: week strip */
+  .week { display:flex; gap:8px; }
+  .day { flex:1; text-align:center; background:var(--surface2); border-radius:12px; padding:11px 0; font-size:12px; font-weight:700; color:var(--faint); }
+  .day.on { background:var(--accent); color:var(--ink); }
+  /* streak mini */
+  .flamebox { display:flex; align-items:center; gap:16px; }
+  .flame { font-size:44px; filter:drop-shadow(0 6px 18px rgba(255,90,44,.5)); }
+  .flamebox b { font-family:'Archivo'; font-size:30px; font-weight:900; display:block; line-height:1; }
+  .flamebox span { color:var(--faint); font-size:13.5px; }
 
-  /* Bottom CTA */
-  .bottom-cta { text-align:center; padding:88px 0; }
-  .bottom-cta h2 { margin:0 auto 16px; }
-  .bottom-cta .sub { margin:0 auto 32px; }
+  /* faq */
+  .faq { max-width:680px; margin-top:40px; }
+  details { border-bottom:1px solid var(--line); padding:22px 0; }
+  summary { font-family:'Archivo'; font-size:17px; font-weight:700; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+  summary::-webkit-details-marker { display:none; }
+  summary::after { content:"+"; color:var(--accent); font-size:24px; font-weight:600; transition:transform .25s; }
+  details[open] summary::after { transform:rotate(45deg); }
+  details p { color:var(--dim); font-size:15px; line-height:1.65; margin-top:12px; max-width:600px; }
 
-  footer { border-top:1px solid var(--line); padding:36px 0 56px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; color:var(--faint); font-size:13.5px; }
-  footer .links a { color:var(--dim); text-decoration:none; margin-left:18px; }
+  /* big cta */
+  .endcta { text-align:center; padding:120px 0; position:relative; }
+  .endcta::before { content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:640px; height:420px;
+    background:radial-gradient(ellipse, rgba(255,90,44,.14), transparent 65%); pointer-events:none; }
+  .endcta h2 { margin:0 auto 14px; max-width:760px; font-size:clamp(34px,5.4vw,58px); }
+  .endcta .note { color:var(--faint); font-size:14.5px; margin-bottom:36px; }
+
+  footer { border-top:1px solid var(--line); padding:34px 0 56px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; color:var(--faint); font-size:13.5px; }
+  footer .links a { color:var(--dim); text-decoration:none; margin-left:20px; }
   footer .links a:hover { color:var(--tx); }
 
   @media (max-width:880px) {
-    .hero { grid-template-columns:1fr; text-align:center; padding:40px 0 64px; }
+    .hero { grid-template-columns:1fr; text-align:center; padding-top:32px; }
+    .hero .phone { margin:42px auto 0; }
     .sub { margin-inline:auto; }
-    .platforms { justify-content:center; }
-    .features { grid-template-columns:1fr 1fr; }
-    .steps { grid-template-columns:1fr; }
+    .stepgrid { grid-template-columns:1fr; gap:48px; }
+    .stepcell:nth-child(2) .phone { transform:none; }
+    .bento { grid-template-columns:1fr; }
     h2 { max-width:none; }
   }
-  @media (max-width:520px) { .features { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -108,81 +156,100 @@
 
   <header class="hero">
     <div>
-      <span class="chip">✦ AI workout import</span>
+      <span class="eyebrow"><span class="bars"><i></i><i></i><i></i><i></i></span> AI WORKOUT IMPORT</span>
       <h1>Saved reels,<br><em>finally usable.</em></h1>
-      <p class="sub">Paste any workout reel and ReelRack's AI watches the video — every exercise, set, and rest — and builds you a clean routine you can actually follow.</p>
-      <a class="cta" href="https://apps.apple.com/app/id6778149095">Download on the App Store</a>
-      <div class="platforms"><span>Works with</span><span>Instagram</span><span>·</span><span>TikTok</span><span>·</span><span>YouTube</span></div>
+      <p class="sub">Share any workout reel. ReelRack's AI watches the video — every exercise, set, and rest — and hands you a routine you can actually follow.</p>
+      <a class="cta" href="https://apps.apple.com/app/id6778149095">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8.94-.19 1.84-.86 3.08-.8 1.79.14 3.05.86 3.91 2.16-3.39 2.03-2.59 6.5.93 7.91-.65 1.4-1.5 2.8-3 2.9zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        Download on the App&nbsp;Store
+      </a>
     </div>
-    <div class="phone" aria-hidden="true">
-      <div class="screen">
-        <div class="mock-reel"><div class="mock-play"></div></div>
-        <div class="mock-arrow">↓</div>
-        <div class="mock-row"><div class="mock-num">1</div><div><div class="mock-name">Goblet Squat</div><div class="mock-meta">3 sets · 12 reps · 45s rest</div></div></div>
-        <div class="mock-row"><div class="mock-num">2</div><div><div class="mock-name">Lateral Lunge to Row</div><div class="mock-meta">3 sets · 10 reps · 45s rest</div></div></div>
-        <div class="mock-row"><div class="mock-num">3</div><div><div class="mock-name">Renegade Row</div><div class="mock-meta">3 sets · 8 reps · 60s rest</div></div></div>
-        <div class="mock-row"><div class="mock-num">4</div><div><div class="mock-name">Thruster</div><div class="mock-meta">3 sets · 12 reps · 45s rest</div></div></div>
-      </div>
-    </div>
+    <div class="phone reveal in"><img src="assets/import.png" alt="ReelRack import screen — paste a reel, get a real routine" width="640" height="1391"></div>
   </header>
 
-  <section id="features">
-    <div class="label">Everything in one place</div>
-    <h2>Stop screenshotting workouts you'll never find again.</h2>
-    <div class="features">
-      <div class="feature">
-        <div class="f-icon">✦</div>
-        <h3>AI Import</h3>
-        <p>Share a reel from Instagram, TikTok, or YouTube. The AI watches the video and reads the on-screen text — not just the caption.</p>
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      <span>INSTAGRAM <em>✦</em> TIKTOK <em>✦</em> YOUTUBE <em>✦</em> REELS <em>✦</em> SHORTS <em>✦</em></span>
+      <span>INSTAGRAM <em>✦</em> TIKTOK <em>✦</em> YOUTUBE <em>✦</em> REELS <em>✦</em> SHORTS <em>✦</em></span>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="label reveal">How it works</div>
+    <h2 class="reveal d1">From reel to routine<br>in about 25 seconds.</h2>
+    <div class="stepgrid">
+      <div class="stepcell reveal">
+        <div class="phone"><img src="assets/import.png" alt="Share or paste a workout reel" loading="lazy" width="640" height="1391"></div>
+        <div class="stepnum">STEP 1</div>
+        <h3>Share the reel</h3>
+        <p>Tap Share → ReelRack inside Instagram or TikTok — or just paste a link or caption.</p>
       </div>
-      <div class="feature">
-        <div class="f-icon">⏱</div>
-        <h3>Workout Runner</h3>
-        <p>Follow along with work and rest timers, audio cues, and set-by-set logging — including weight and reps.</p>
+      <div class="stepcell reveal d1">
+        <div class="phone"><img src="assets/progress.png" alt="AI analyzing the workout video" loading="lazy" width="640" height="1391"></div>
+        <div class="stepnum">STEP 2</div>
+        <h3>AI watches the video</h3>
+        <p>On-screen text, demonstrated movements, captions — extracted into exercises, sets, reps, and rest.</p>
       </div>
-      <div class="feature">
-        <div class="f-icon">🗓</div>
-        <h3>Planner</h3>
-        <p>Schedule workouts across your week, get reminders, and mark days complete or skipped.</p>
-      </div>
-      <div class="feature">
-        <div class="f-icon">🔥</div>
-        <h3>Streaks &amp; Progress</h3>
-        <p>Daily streaks, achievements, and a full history of every session — see what you lifted last time, then beat it.</p>
+      <div class="stepcell reveal d2">
+        <div class="phone"><img src="assets/library.png" alt="Your organized workout library" loading="lazy" width="640" height="1391"></div>
+        <div class="stepnum">STEP 3</div>
+        <h3>Train &amp; track</h3>
+        <p>Run it with timers, log every set, keep the streak alive — your reels become a real library.</p>
       </div>
     </div>
   </section>
 
-  <section id="how">
-    <div class="label">How it works</div>
-    <h2>From reel to routine in under 30 seconds.</h2>
-    <div class="steps">
-      <div class="step">
-        <h3>Share the reel</h3>
-        <p>Tap Share → ReelRack right inside Instagram or TikTok, or just paste a link or caption.</p>
+  <section id="features">
+    <div class="label reveal">Built for following through</div>
+    <h2 class="reveal d1">Stop screenshotting workouts you'll never find again.</h2>
+    <div class="bento">
+      <div class="cell reveal">
+        <h3>AI that actually watches</h3>
+        <p>Most workout reels never say the routine out loud — it's burned into the video as text. ReelRack reads it frame by frame.</p>
+        <div class="mini">
+          <div class="stage"><span class="tick">✓</span> Fetching the post</div>
+          <div class="stage"><span class="tick">✓</span> Analyzing the routine</div>
+          <div class="stage"><span class="tick live"></span> Detecting exercises…</div>
+        </div>
       </div>
-      <div class="step">
-        <h3>AI builds the routine</h3>
-        <p>The video is analyzed for every exercise, set count, rep scheme, and rest period — then organized into your catalogs.</p>
+      <div class="cell reveal d1">
+        <h3>A runner that coaches</h3>
+        <p>Work and rest timers with audio cues, set-by-set logging with weight — and what you lifted last time, so you beat it.</p>
+        <div class="mini ringwrap">
+          <div class="ring"><b>45</b></div>
+          <div class="ringtxt"><b>Goblet Squat</b><span>Set 2 of 3 · 12 reps · last time 10 @ 25</span></div>
+        </div>
       </div>
-      <div class="step">
-        <h3>Train and track</h3>
-        <p>Run the workout with timers, log your sets, keep your streak alive, and share your result.</p>
+      <div class="cell reveal">
+        <h3>Plan your week</h3>
+        <p>Drop workouts onto days, get reminders, mark them done or skipped.</p>
+        <div class="mini week">
+          <span class="day">M</span><span class="day on">T</span><span class="day">W</span>
+          <span class="day on">T</span><span class="day">F</span><span class="day on">S</span><span class="day">S</span>
+        </div>
+      </div>
+      <div class="cell reveal d1">
+        <h3>Streaks that stick</h3>
+        <p>Daily streaks, achievements, and a history of every session and set.</p>
+        <div class="mini flamebox">
+          <span class="flame">🔥</span>
+          <div><b>7 days</b><span>current streak — keep it lit</span></div>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="faq">
-    <div class="label">FAQ</div>
-    <h2>Questions, answered.</h2>
+    <div class="label reveal">FAQ</div>
+    <h2 class="reveal d1">Questions, answered.</h2>
     <div class="faq">
       <details>
         <summary>Which platforms can I import from?</summary>
         <p>Instagram Reels, TikTok, and YouTube (including Shorts). You can also paste a caption or any workout text and ReelRack will structure it.</p>
       </details>
       <details>
-        <summary>What if the reel only shows the workout as on-screen text?</summary>
-        <p>That's exactly what ReelRack is built for. The AI watches the actual video — on-screen text, overlays, and demonstrated movements — so workouts that are never spoken aloud still import accurately.</p>
+        <summary>What if the workout is only shown as on-screen text?</summary>
+        <p>That's exactly what ReelRack is built for. The AI watches the actual video — overlays, burned-in captions, demonstrated movements — so routines that are never spoken aloud still import accurately.</p>
       </details>
       <details>
         <summary>Is ReelRack free?</summary>
@@ -190,15 +257,15 @@
       </details>
       <details>
         <summary>Do you access my social media account?</summary>
-        <p>No. ReelRack only processes the public post you explicitly share or paste. Your workouts, logs, and streaks are stored on your device.</p>
+        <p>No. ReelRack only processes the public post you explicitly share or paste. Your workouts, logs, and streaks live on your device.</p>
       </details>
     </div>
   </section>
 
-  <div class="bottom-cta">
-    <h2>Your saved reels are a training plan.<br>Start using them.</h2>
-    <p class="sub">Free to try · 7-day Pro trial · cancel anytime</p>
-    <a class="cta" href="https://apps.apple.com/app/id6778149095">Download ReelRack</a>
+  <div class="endcta">
+    <h2 class="reveal">Your saved reels are a training plan. Start using them.</h2>
+    <p class="note reveal d1">Free to try · 7-day Pro trial · cancel anytime</p>
+    <a class="cta reveal d2" href="https://apps.apple.com/app/id6778149095">Download ReelRack</a>
   </div>
 
   <footer>
@@ -211,5 +278,12 @@
   </footer>
 
 </div>
+
+<script>
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }, { threshold: 0.18 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
 </body>
 </html>
