@@ -33,8 +33,8 @@ ReelRack (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is made by Mudra L
 • Server logs: our import service keeps short-lived technical logs (such as request status and errors) to keep the Service reliable.
 • Usage analytics: we use PostHog to understand how the app is used — events like imports started, workouts completed, and subscriptions purchased, along with basic device information. These are associated with your account identifier and used only to improve the product. We do not use advertising SDKs, do not track you across other apps, and do not collect your location.
 
-3. What stays on your device
-Your workouts, catalogs, schedules, completed sessions, set logs, streaks, and reel cover images are stored locally on your device — not on our servers.
+3. Your training data
+Your workouts, catalogs, schedules, completed sessions, set logs, and streaks are stored on your device and backed up to our servers (hosted on Supabase) so they can be restored when you sign in on a new device. Reel cover images stay on your device only. Backups are private to your account and are permanently deleted when you delete your account.
 
 4. How we use information
 • Provide and improve the Service
